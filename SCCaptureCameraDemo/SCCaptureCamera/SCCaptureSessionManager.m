@@ -229,20 +229,28 @@
         
         UIDeviceOrientation orientation = [UIDevice currentDevice].orientation;
         if (orientation != UIDeviceOrientationPortrait) {
-            
             CGFloat degree = 0;
             if (orientation == UIDeviceOrientationPortraitUpsideDown) {
                 degree = 180;// M_PI;
             } else if (orientation == UIDeviceOrientationLandscapeLeft) {
-                degree = -90;// -M_PI_2;
+                if ([self.inputDevice.device position] == AVCaptureDevicePositionBack) {
+                    degree = -90;// -M_PI_2;
+                }  else {
+                    degree = 90;
+                }
             } else if (orientation == UIDeviceOrientationLandscapeRight) {
-                degree = 90;// M_PI_2;
+                if ([self.inputDevice.device position] == AVCaptureDevicePositionBack) {
+                    degree = 90;
+                }  else {
+                    degree = -90;
+                }
             }
             croppedImage = [croppedImage rotatedByDegrees:degree];
         }
-        
-//        self.imageView.image = croppedImage;
-        
+        if([self.inputDevice.device position] == AVCaptureDevicePositionFront){
+            //前置摄像头拍摄，将照片镜像
+            croppedImage = [UIImage imageWithCGImage:croppedImage.CGImage scale:croppedImage.scale orientation:UIImageOrientationUpMirrored];
+        }
         //block、delegate、notification 3选1，传值
         if (block) {
             block(croppedImage);
